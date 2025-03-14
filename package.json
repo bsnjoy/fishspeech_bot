@@ -1,0 +1,16 @@
+{
+  "name": "fishspeech-bot",
+  "version": "1.0.0",
+  "description": "Telegram bot that converts text to speech",
+  "main": "bot.js",
+  "scripts": {
+    "start": "node bot.js",
+    "test-tts": "node test-tts.js"
+  },
+  "dependencies": {
+    "grammy": "^1.16.0",
+    "axios": "^1.3.4",
+    "dotenv": "^16.0.3",
+    "form-data": "^4.0.0"
+  }
+}
