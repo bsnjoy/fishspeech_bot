@@ -1,0 +1,20 @@
+[Unit]
+Description=FishSpeech Telegram Bot
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=nobody
+WorkingDirectory=/path/to/fishspeech-bot
+ExecStart=/usr/bin/node bot.js
+Restart=on-failure
+RestartSec=10
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=fishspeech-bot
+Environment=NODE_ENV=production
+EnvironmentFile=/path/to/fishspeech-bot/.env
+
+[Install]
+WantedBy=multi-user.target
