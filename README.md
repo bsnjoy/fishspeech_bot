@@ -66,6 +66,56 @@ node bot.js
 - Ensure the text-to-speech API is accessible from your server
 - Check the console logs for any error messages
 
+## Running as a Service on Debian
+
+To run the bot as a systemd service that starts automatically after the network is established:
+
+1. Copy the service file to the systemd directory:
+   ```
+   sudo cp fishspeech-bot.service /etc/systemd/system/
+   ```
+
+2. Edit the service file to update the paths:
+   ```
+   sudo nano /etc/systemd/system/fishspeech-bot.service
+   ```
+   
+   Update the following lines with your actual paths:
+   - `WorkingDirectory=/path/to/fishspeech-bot` (replace with the actual path to your bot directory)
+   - `EnvironmentFile=/path/to/fishspeech-bot/.env` (replace with the actual path to your .env file)
+   
+   You may also want to change the `User=nobody` to a more appropriate user that has permissions to run the bot.
+
+3. Reload the systemd daemon:
+   ```
+   sudo systemctl daemon-reload
+   ```
+
+4. Enable the service to start on boot:
+   ```
+   sudo systemctl enable fishspeech-bot.service
+   ```
+
+5. Start the service:
+   ```
+   sudo systemctl start fishspeech-bot.service
+   ```
+
+6. Check the status of the service:
+   ```
+   sudo systemctl status fishspeech-bot.service
+   ```
+
+7. View logs:
+   ```
+   sudo journalctl -u fishspeech-bot.service
+   ```
+   
+   To follow logs in real-time:
+   ```
+   sudo journalctl -u fishspeech-bot.service -f
+   ```
+
 ### Testing the Text-to-Speech API
 
 You can test the text-to-speech API without running the full bot using the included test script:

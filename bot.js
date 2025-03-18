@@ -1,9 +1,8 @@
 require('dotenv').config();
-const { Bot } = require('grammy');
+const { Bot, InputFile } = require('grammy');
 const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
-const FormData = require('form-data');
 
 // Check if required environment variables are set
 if (!process.env.TELEGRAM_BOT_TOKEN) {
@@ -25,6 +24,39 @@ if (!fs.existsSync(tempDir)) {
 // Initialize the bot
 const bot = new Bot(process.env.TELEGRAM_BOT_TOKEN);
 
+// Add middleware for debugging
+bot.use(async (ctx, next) => {
+  console.log('Received update:', JSON.stringify(ctx.update, null, 2));
+  await next();
+});
+
+// Handle /start command
+bot.command('start', async (ctx) => {
+  console.log('Received /start command');
+  await ctx.reply('👋 Welcome to FishSpeech Bot! Send me any text message and I will convert it to speech. Messages starting with # or // will be ignored as comments.');
+});
+
+// Handle /help command
+bot.command('help', async (ctx) => {
+  console.log('Received /help command');
+  await ctx.reply(
+    '🔊 *FishSpeech Bot Help*\n\n' +
+    'This bot converts text messages to speech.\n\n' +
+    '*Commands:*\n' +
+    '/start - Start the bot\n' +
+    '/help - Show this help message\n\n' +
+    '*Usage:*\n' +
+    '1. Simply send any text message\n' +
+    '2. The bot will convert it to speech and send back an audio file\n' +
+    '3. Messages starting with # or // will be ignored as comments\n\n' +
+    '*Examples:*\n' +
+    'Hello, convert this to speech\n' +
+    '# This is a comment and will be ignored\n' +
+    '// This is also a comment',
+    { parse_mode: 'Markdown' }
+  );
+});
+
 // Helper function to check if a message is a comment
 function isComment(text) {
   return text.startsWith('#') || text.startsWith('//');
@@ -41,6 +73,7 @@ async function textToSpeech(text, outputPath) {
         format: 'wav'
       },
       responseType: 'stream',
+      seed: 12,
       headers: {
         'Content-Type': 'application/json'
       }
@@ -71,8 +104,8 @@ bot.on('message:text', async (ctx) => {
   }
 
   try {
-    // Send a "processing" message
-    await ctx.reply('Converting your text to speech...');
+    // Send a "processing" message and store the message object
+    const processingMsg = await ctx.reply('Converting your text to speech...');
     
     // Generate a unique filename for this conversion
     const timestamp = Date.now();
@@ -82,8 +115,12 @@ bot.on('message:text', async (ctx) => {
     // Convert text to speech
     await textToSpeech(messageText, outputPath);
     
-    // Send the audio file back to the user
-    await ctx.replyWithVoice({ source: outputPath });
+    // Send the audio file back to the user using
+    // await ctx.replyWithAudio(new InputFile(outputPath));
+    await ctx.replyWithVoice(new InputFile(outputPath));
+    
+    // Delete the "Converting your text to speech..." message
+    await ctx.api.deleteMessage(ctx.chat.id, processingMsg.message_id);
     
     // Clean up the file after sending
     fs.unlinkSync(outputPath);
@@ -99,6 +136,14 @@ bot.catch((err) => {
   console.error('Bot error:', err);
 });
 
-// Start the bot
-bot.start();
-console.log('Bot started successfully!');
+// Start the bot with more detailed options
+console.log('Starting bot...');
+bot.start({
+  drop_pending_updates: true,
+  onStart: (botInfo) => {
+    console.log(`Bot started as @${botInfo.username}`);
+    console.log('Bot information:', JSON.stringify(botInfo, null, 2));
+  }
+}).catch(err => {
+  console.error('Failed to start bot:', err);
+});
