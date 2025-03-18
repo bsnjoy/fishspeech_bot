@@ -72,12 +72,12 @@ To run the bot as a systemd service that starts automatically after the network 
 
 1. Copy the service file to the systemd directory:
    ```
-   sudo cp fishspeech_bot.service /etc/systemd/system/fishspeech_bot
+   sudo cp fishspeech_bot.service /etc/systemd/system/
    ```
 
 2. Edit the service file to update the paths:
    ```
-   sudo vim /etc/systemd/system/fishspeech_bot
+   sudo vim /etc/systemd/system/fishspeech_bot.service
    ```
    
    Update the following lines with your actual paths:

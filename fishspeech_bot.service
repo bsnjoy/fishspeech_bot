@@ -5,7 +5,6 @@ Wants=network-online.target
 
 [Service]
 Type=simple
-User=nobody
 WorkingDirectory=/root/fishspeech_bot
 ExecStart=/usr/bin/node bot.js
 Restart=on-failure
